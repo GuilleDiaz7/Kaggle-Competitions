@@ -16,7 +16,7 @@ submission <-  <- read_csv("data/sample_submission.csv")
 ```
 
 In this case, the data is already split, but I prefer to use this code because normally the dataset comes as a whole.
-```
+```R
 set.seed(123)
 space_split <- initial_split(space_df, strata = Transported)
 space_train <- training(space_split)
@@ -24,7 +24,7 @@ space_test <- testing(space_split)
 ```
 
 Now it is time to create the recipe where every preprocessing step applied to the data is stored.
-```
+```R
 space_recipe <- recipe(Transported ~ ., data = space_train) %>% 
   update_role(PassengerId, Name, new_role = "ID") %>% 
   step_rm(Cabin) %>% 
