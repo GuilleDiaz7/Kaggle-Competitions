@@ -1,5 +1,6 @@
 # Model explanation
 
+## Load libraries and data
 In first place we load the libraries, one to clean and preprocess data and the other to create the statistical model.
 ```R
 library(tidymodels)
@@ -15,6 +16,8 @@ space_test <- space_test_final <- read_csv("data/test.csv") %>%
 submission <-  <- read_csv("data/sample_submission.csv")
 ```
 
+
+## Preprocess data and create the recipe
 In this case, the data is already split, but I prefer to use this code because normally the dataset comes as a whole.
 ```R
 set.seed(123)
@@ -23,7 +26,12 @@ space_train <- training(space_split)
 space_test <- testing(space_split)
 ```
 
-Now it is time to create the recipe where every preprocessing step applied to the data is stored. With *update_role* we convert a couple variables into Id's, then *step_rm* deletes any variable selected, *step_impute_median* imputes the median to the missing values of *all_numeric_predictors* and *step_impute_knn* uses nearest neighbourhoods algorithm to impute missing values for *all_nominal_predictors*. Finally, *step_dummy* creates dummy variables for the nominal predictores, *step_zv* drops variables with *zero variance* (basically just 1 category or value) and *step_scale* normalizes numeric variables.
+Now it is time to create the recipe where every preprocessing step applied to the data is stored. First we indicate the formula, which means that the `Transported` variable will be predicted by the rest of variables and the training data will be `space_train`.
+```R
+(Transported ~ ., data = space_train)
+```
+
+With *update_role* we convert a couple variables into Id's, then *step_rm* deletes any variable selected, *step_impute_median* imputes the median to the missing values of *all_numeric_predictors* and *step_impute_knn* uses nearest neighbourhoods algorithm to impute missing values for *all_nominal_predictors*. Finally, *step_dummy* creates dummy variables for the nominal predictores, *step_zv* drops variables with *zero variance* (basically just 1 category or value) and *step_scale* normalizes numeric variables.
 ```R
 space_recipe <- recipe(Transported ~ ., data = space_train) %>% 
   update_role(PassengerId, Name, new_role = "ID") %>% 
@@ -34,3 +42,5 @@ space_recipe <- recipe(Transported ~ ., data = space_train) %>%
   step_zv(all_predictors()) %>% 
   step_scale(all_numeric_predictors())
 ```
+
+## Create and tune the model
