@@ -23,7 +23,7 @@ space_train <- training(space_split)
 space_test <- testing(space_split)
 ```
 
-Now it is time to create the recipe where every preprocessing step applied to the data is stored.
+Now it is time to create the recipe where every preprocessing step applied to the data is stored. With *update_role* we convert a couple variables into Id's, then *step_rm* deletes any variable selected, *step_impute_median* imputes the median to the missing values of *all_numeric_predictors* and *step_impute_knn* uses nearest neighbourhoods algorithm to impute missing values for *all_nominal_predictors*. Finally, *step_dummy* creates dummy variables for the nominal predictores, *step_zv* drops variables with *zero variance* (basically just 1 category or value) and *step_scale* normalizes numeric variables.
 ```R
 space_recipe <- recipe(Transported ~ ., data = space_train) %>% 
   update_role(PassengerId, Name, new_role = "ID") %>% 
