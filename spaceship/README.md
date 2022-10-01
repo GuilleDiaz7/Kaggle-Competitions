@@ -31,7 +31,7 @@ Now it is time to create the recipe where every preprocessing step applied to th
 (Transported ~ ., data = space_train)
 ```
 
-With *update_role* we convert a couple variables into Id's, then *step_rm* deletes any variable selected, *step_impute_median* imputes the median to the missing values of *all_numeric_predictors* and *step_impute_knn* uses nearest neighbourhoods algorithm to impute missing values for *all_nominal_predictors*. Finally, *step_dummy* creates dummy variables for the nominal predictores, *step_zv* drops variables with *zero variance* (basically just 1 category or value) and *step_scale* normalizes numeric variables.
+With `update_role` we convert a couple variables into Id's, then `step_rm` deletes any variable selected, `step_impute_median` imputes the median to the missing values of `all_numeric_predictors` and `step_impute_knn` uses nearest neighbourhoods algorithm to impute missing values for `all_nominal_predictors`. Finally, `step_dummy` creates dummy variables for the nominal predictores, `step_zv` drops variables with *zero variance* (basically just 1 category or value) and `step_scale` normalizes numeric variables.
 ```R
 space_recipe <- recipe(Transported ~ ., data = space_train) %>% 
   update_role(PassengerId, Name, new_role = "ID") %>% 
@@ -44,3 +44,20 @@ space_recipe <- recipe(Transported ~ ., data = space_train) %>%
 ```
 
 ## Create and tune the model
+We use a technique called random forest, which combines the results of a number of decision trees. In this case I choose 2, which is a very low number. The default value is 500. Random forest is incredibly slow and this is just an example. Normally, with a high enough number of trees, let's say 1000, we wouldn't need hyperparameter tuning. In this example we tune `mtry` (number of randomly selected predictors) and `min_n` (minimal node size of the trees).
+```r
+tune_spec <- rand_forest(
+  mtry = tune(),
+  trees = 2,
+  min_n = tune()
+) %>%
+  set_mode("classification") %>%
+  set_engine("ranger")
+```
+
+Then, we create the workflow.
+```r
+tune_wf <- workflow() %>%
+  add_recipe(space_recipe) %>%
+  add_model(tune_spec)
+```
