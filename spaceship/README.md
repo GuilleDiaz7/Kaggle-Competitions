@@ -61,3 +61,21 @@ tune_wf <- workflow() %>%
   add_recipe(space_recipe) %>%
   add_model(tune_spec)
 ```
+
+It is recommended to train the model with different samples of the dataset (cross validation) so we create ten folds of the same size, approximately.
+```r
+set.seed(234)
+space_folds <- vfold_cv(space_train)
+```
+
+And finally we can train the model. As I said, random forest takes some time, so parallelization will speed things up.
+```r
+doParallel::registerDoParallel()
+
+set.seed(345)
+tune_res <- tune_grid(
+  tune_wf,
+  resamples = space_folds,
+  grid = 10
+)
+```
