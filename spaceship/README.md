@@ -5,6 +5,7 @@ In first place we load the libraries, one to clean and preprocess data and the o
 ```R
 library(tidymodels)
 library(tidyverse)
+library(ggplot2)
 ```
 
 The we load the data provided by [Kaggle](https://www.kaggle.com/competitions/spaceship-titanic/data). I converted both character and logical data into factor, although it is not strictly neccesary. Here I am using relative paths to load the data. I cloned this GitHub repository in my computer to work more comfortable with RStudio Desktop.
@@ -68,7 +69,7 @@ set.seed(234)
 space_folds <- vfold_cv(space_train)
 ```
 
-And finally we can train the model. As I said, random forest takes some time, so parallelization will speed things up.
+Now we are going to see which parameters work better with a grid search. As I said, random forest takes some time, so parallelization will speed things up. This part may take a while, so grab a cup of coffee and open a book.
 ```r
 doParallel::registerDoParallel()
 
@@ -79,3 +80,20 @@ tune_res <- tune_grid(
   grid = 10
 )
 ```
+
+Once the process is completed we can plot the results.
+```R
+tune_res %>%
+  collect_metrics() %>%
+  filter(.metric == "roc_auc") %>%
+  select(mean, min_n, mtry) %>%
+  pivot_longer(min_n:mtry,
+               values_to = "value",
+               names_to = "parameter"
+  ) %>%
+  ggplot(aes(value, mean, color = parameter)) +
+  geom_point(show.legend = FALSE) +
+  facet_wrap(~parameter, scales = "free_x") +
+  labs(x = NULL, y = "AUC")
+```
+![grid_search_metrics](https://user-images.githubusercontent.com/42537388/193423194-da1ed0ce-b9fe-4da4-9b0a-e67377159f69.png)
