@@ -19,7 +19,7 @@ submission <-  <- read_csv("data/sample_submission.csv")
 
 
 ## Preprocess data and create the recipe
-In this case, the data is already split, but I prefer to use this code because normally the dataset comes as a whole, not separated in train and test.
+In this case, the data is already split, but I prefer to use this code because normally the dataset comes as a whole, not separated in train and test. The `set.seed()` function makes the splitting randomly.
 ```R
 set.seed(123)
 space_split <- initial_split(space_df, strata = Transported)
