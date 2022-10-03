@@ -58,7 +58,9 @@ titanic_test <- titanic_test %>%
 
 ## Create the model
 
-With `update_role` we convert a variable into and Id, so it will not be used for prediction. `Step_zv` removes any variable with zero variance and `step_normalize` standardizes any numeric variable.
+The formula `Survived ~.` means that the variable Survived will be predicted by every other variable in the dataset.
+
+With `update_role` we convert a variable into and Id, so it will not be used for prediction. `Step_rm` drops a variable (in this case, Ticket, cause it would require quite a lot of preprocessing. `Step_other` musters every category under a threshold into a Other category. `Step_zv` removes any variable with zero variance and `step_normalize` standardizes any numeric variable.
 
  ```R
 glm_recipe <- recipe(Survived ~., data = titanic_train) %>% 
