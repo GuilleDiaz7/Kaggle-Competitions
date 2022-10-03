@@ -101,3 +101,5 @@ rf_submission <- rf_submission %>%
     Survived = if_else(Survived == "Deceased", 0, 1)
   )
 write.csv(rf_submission, "titanic/data/rf_submission.csv", row.names = FALSE)
+
+# Kaggle accuracy score: 0.77511
