@@ -49,18 +49,34 @@ titanic_train <- titanic_train %>%
 With `update_role` we convert a variable into and Id, so it will not be used for prediction. `Step_zv` removes any variable with zero variance and `step_normalize` standardizes any numeric variable.
 
  ```R
- glm_recipe <- recipe(Survived ~., data = titanic_train) %>% 
+glm_recipe <- recipe(Survived ~., data = titanic_train) %>% 
   update_role(PassengerId, new_role = "Id") %>% 
+  step_rm(Ticket) %>% 
   step_mutate(Survived = factor(
     Survived,
-    levels = c(0, 1),
-    labels = c("Deceased", "Survived")
-  )) %>% 
+      levels = c(0, 1),
+      labels = c("Deceased", "Survived")
+    )
+  ) %>% 
+  step_mutate(
+    title = str_match(Name, ", ([:alpha:]+)\\."),
+    title = if_else(is.na(title[, 2]), "NA", title[, 2])
+  ) %>% 
+  step_other(title, threshold = 0.02, other = "Other") %>% 
+  update_role(Name, new_role = "Id") %>% 
+  step_mutate(Cabin = if_else(is.na(Cabin), "Missing", "Available")) %>% 
+  step_impute_knn(all_predictors()) %>% 
   step_string2factor(all_nominal_predictors()) %>% 
+  step_num2factor(Pclass, levels = c("First", "Second", "Third")) %>% 
   step_novel(all_nominal_predictors()) %>% 
   step_dummy(all_nominal_predictors()) %>% 
   step_zv(all_predictors()) %>% 
   step_normalize(all_numeric_predictors())
+```
+
+I recommend to run the following code to check if there is any problem with the recipe.
+```R
+prep(glm_recipe)
 ```
 
 Then we choose the engine for the logistic regression...
