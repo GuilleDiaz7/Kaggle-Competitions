@@ -10,22 +10,17 @@ titanic_test <- read_csv("titanic/data/test.csv") %>%
   mutate(across(where(is.character) | where(is.logical), as.factor))
 submission <- read_csv("titanic/data/gender_submission.csv")
 
-# Optional
-titanic_train <- read_csv("https://raw.githubusercontent.com/GuilleDiaz7/Kaggle-Competitions/main/titanic/data/train.csv")
-titanic_test <- read_csv("https://raw.githubusercontent.com/GuilleDiaz7/Kaggle-Competitions/main/titanic/data/test.csv") 
-submission <- read_csv("https://raw.githubusercontent.com/GuilleDiaz7/Kaggle-Competitions/main/titanic/data/gender_submission.csv")
-
 titanic_train <- titanic_train %>% 
   mutate(Survived = factor(
-  Survived,
-  levels = c(0, 1),
-  labels = c("Deceased", "Survived")))
-  
+    Survived,
+    levels = c(0, 1),
+    labels = c("Deceased", "Survived")))
+
 titanic_train <- titanic_train %>% 
   mutate(
     title = str_match(Name, ", ([:alpha:]+)\\."),
     title = if_else(is.na(title[, 2]), "NA", title[, 2])
-    ) 
+  ) 
 
 titanic_test <- titanic_test %>% 
   mutate(
@@ -34,10 +29,7 @@ titanic_test <- titanic_test %>%
   ) 
 
 
-set.seed(123)
-titanic_folds <- vfold_cv(titanic_train, strata = Survived)
-
-glm_recipe <- recipe(Survived ~., data = titanic_train) %>% 
+rf_recipe <- recipe(Survived ~., data = titanic_train) %>% 
   update_role(PassengerId, new_role = "Id") %>%   
   step_rm(Ticket) %>% 
   step_string2factor(all_nominal_predictors()) %>% 
@@ -50,41 +42,41 @@ glm_recipe <- recipe(Survived ~., data = titanic_train) %>%
   step_dummy(all_nominal_predictors()) %>% 
   step_zv(all_predictors()) %>% 
   step_normalize(all_numeric_predictors())
-prep(glm_recipe)
 
-glm_baked <- glm_recipe %>% 
-  prep() %>% 
-  bake(new_data = NULL)
-names(glm_baked)
+prep(rf_recipe)
+bake(prep(rf_recipe), new_data = NULL)
 
-glm_spec <- logistic_reg() %>% 
-  set_engine("glm")
+rf_spec <- rand_forest(trees = 2000) %>% 
+  set_engine("ranger") %>% 
+  set_mode("classification")
 
-glm_wf <- workflow() %>% 
-  add_recipe(glm_recipe) %>% 
-  add_model(glm_spec)
+rf_wf <- workflow() %>% 
+  add_recipe(rf_recipe) %>% 
+  add_model(rf_spec)
 
+set.seed(323)
+titanic_folds <- vfold_cv(titanic_train, strata = Survived)
 list_metrics <- metric_set(roc_auc, accuracy, sensitivity, specificity)
 
 doParallel::registerDoParallel()
 
-glm_results <- glm_wf %>% 
+rf_results <- rf_wf %>% 
   fit_resamples(
     resamples = titanic_folds,
     metrics = list_metrics,
     control = control_resamples(save_pred = TRUE)
   )
 
-glm_results %>% 
+rf_results %>% 
   collect_metrics()
 
-glm_results %>% 
+rf_results %>% 
   conf_mat_resampled()
 
-glm_results %>% 
+rf_results %>% 
   collect_predictions()
 
-glm_results %>%
+rf_results %>%
   collect_predictions() %>%
   group_by(id) %>%
   roc_curve(Survived, .pred_Deceased) %>%
@@ -93,14 +85,12 @@ glm_results %>%
   geom_path(show.legend = FALSE, alpha = 0.6, size = 1.2) +
   coord_equal()
 
-fitted <- fit(glm_wf, titanic_train)
+fitted <- fit(rf_wf, titanic_train)
 predictions <- predict(fitted, new_data = titanic_test)
-lr_submission <- submission
-lr_submission$Survived <- predictions
-lr_submission <- lr_submission %>% 
+rf_submission <- submission
+rf_submission$Survived <- predictions
+rf_submission <- rf_submission %>% 
   mutate(
     Survived = if_else(Survived == "Deceased", 0, 1)
   )
-write.csv(lr_submission, "titanic/data/log_reg_submission.csv", row.names = FALSE)
-
-
+write.csv(rf_submission, "titanic/data/rf_submission.csv", row.names = FALSE)
