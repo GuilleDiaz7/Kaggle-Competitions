@@ -112,9 +112,6 @@ final_xgb %>%
   extract_fit_parsnip() %>%
   vip(geom = "point")
 
-titanic_splits <- initial_split(titanic_train, strata = Survived)
-final_res <- last_fit(final_xgb, titanic_splits)
-
 collect_metrics(final_res)
 
 final_res %>%
@@ -129,10 +126,6 @@ final_res %>%
   )
 
 fitted <- fit(final_xgb, titanic_train)
-
-fitted %>% 
-  extract_fit_parsnip() %>% 
-  vip(geom = "point")
 
 predictions <- predict(fitted, new_data = titanic_test)
 xgb_submission <- submission
