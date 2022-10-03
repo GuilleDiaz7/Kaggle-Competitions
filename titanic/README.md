@@ -131,3 +131,11 @@ glm_results %>%
   geom_path(show.legend = FALSE, alpha = 0.6, size = 1.2) +
   coord_equal()
  ```
+
+## Optional - Submit results to Kaggle
+
+If you want to submit your prediction on test data to Kaggle just run the following code.
+
+```R
+
+```
