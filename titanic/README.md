@@ -17,11 +17,11 @@ Then we load the data provided by [Kaggle](https://www.kaggle.com/competitions/t
 The `gender_submission` file contains my last submission, not the original submission file from Kaggle.
 
 ```R
-titanic_train <- read_csv("data/train.csv") %>% 
+titanic_train <- read_csv("titanic/data/train.csv") %>% 
   mutate(across(where(is.character) | where(is.logical), as.factor))
-titanic_test <- read_csv("data/test.csv") %>% 
+titanic_test <- read_csv("titanic/data/test.csv") %>% 
   mutate(across(where(is.character) | where(is.logical), as.factor))
-submission <- read_csv("data/gender_submission.csv")
+submission <- read_csv("titanic/data/gender_submission.csv")
 ```
 
 If you want to download data directly from this repository without cloning it, you can use the following code.
