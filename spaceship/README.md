@@ -12,7 +12,7 @@ The we load the data provided by [Kaggle](https://www.kaggle.com/competitions/sp
 ```R
 space_train <- read_csv("data/train.csv") %>% 
   mutate(across(where(is.character) | where(is.logical), as.factor))
-space_test <- space_test_final <- read_csv("data/test.csv") %>% 
+space_test <- read_csv("data/test.csv") %>% 
   mutate(across(where(is.character) | where(is.logical), as.factor))
 submission <-  <- read_csv("data/sample_submission.csv")
 ```
