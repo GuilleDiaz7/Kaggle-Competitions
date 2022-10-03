@@ -1,6 +1,8 @@
 library(tidymodels)
 library(tidyverse)
 library(ggplot2)
+library(vip)
+library(themis)
 
 rm(list = ls())
 
@@ -28,7 +30,6 @@ titanic_test <- titanic_test %>%
     title = if_else(is.na(title[, 2]), "NA", title[, 2])
   ) 
 
-
 rf_recipe <- recipe(Survived ~., data = titanic_train) %>% 
   update_role(PassengerId, new_role = "Id") %>%   
   step_rm(Ticket) %>% 
@@ -41,13 +42,14 @@ rf_recipe <- recipe(Survived ~., data = titanic_train) %>%
   step_novel(all_nominal_predictors()) %>% 
   step_dummy(all_nominal_predictors()) %>% 
   step_zv(all_predictors()) %>% 
-  step_normalize(all_numeric_predictors())
+  step_normalize(all_numeric_predictors()) %>% 
+  step_smote()
 
-prep(rf_recipe)
+titanic_prep <- prep(rf_recipe)
 bake(prep(rf_recipe), new_data = NULL)
 
-rf_spec <- rand_forest(trees = 2000) %>% 
-  set_engine("ranger") %>% 
+rf_spec <- rand_forest(trees = 2500) %>% 
+  set_engine("ranger", importance = "permutation") %>% 
   set_mode("classification")
 
 rf_wf <- workflow() %>% 
@@ -86,6 +88,11 @@ rf_results %>%
   coord_equal()
 
 fitted <- fit(rf_wf, titanic_train)
+
+fitted %>% 
+  extract_fit_parsnip() %>% 
+  vip(geom = "point")
+
 predictions <- predict(fitted, new_data = titanic_test)
 rf_submission <- submission
 rf_submission$Survived <- predictions
