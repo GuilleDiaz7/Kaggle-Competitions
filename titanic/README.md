@@ -14,15 +14,18 @@ library(ggplot2)
 ## Load data
 
 Then we load the data provided by [Kaggle](https://www.kaggle.com/competitions/titanic/data). I converted both character and logical data into factor, although it is not strictly neccesary. Here I am using relative paths to load the data. I cloned this GitHub repository in my computer to work more comfortable with RStudio Desktop.
+The `gender_submission` file contains my last submission, not the original submission file from Kaggle.
+
 ```R
 titanic_train <- read_csv("data/train.csv") %>% 
   mutate(across(where(is.character) | where(is.logical), as.factor))
 titanic_test <- read_csv("data/test.csv") %>% 
   mutate(across(where(is.character) | where(is.logical), as.factor))
-submission <-  <- read_csv("data/gender_submission.csv")
+submission <- read_csv("data/gender_submission.csv")
 ```
 
 If you want to download data directly from this repository without cloning it, you can use the following code.
+
 ```R
 titanic_train <- read_csv("https://raw.githubusercontent.com/GuilleDiaz7/Kaggle-Competitions/main/titanic/data/train.csv")
 titanic_test <- read_csv("https://raw.githubusercontent.com/GuilleDiaz7/Kaggle-Competitions/main/titanic/data/test.csv") 
@@ -32,6 +35,7 @@ submission <- read_csv("https://raw.githubusercontent.com/GuilleDiaz7/Kaggle-Com
 ## Preprocess the data
 
 We convert the `Survived` variable into a factor and change the labels to be more readable. We also extract title from the `Name` variable such as Mr or Master or Dr.
+
 ```R
 titanic_train <- titanic_train %>% 
   mutate(Survived = factor(
