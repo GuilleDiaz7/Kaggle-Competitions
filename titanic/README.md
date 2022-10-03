@@ -1,6 +1,6 @@
 # Basic model explanation
 
-This is the explanation of a really basic workflow of a logistic model which will give bad results. On this [file]() there is a better model.
+This is the explanation of a really basic workflow for a logistic model which will give bad results. On this [file]() there is a better model which, basically, includes some feature engineering, some data imputation and some parameter tuning.
 
 ## Load libraries
 
@@ -31,7 +31,8 @@ submission <- read_csv("https://raw.githubusercontent.com/GuilleDiaz7/Kaggle-Com
 
 ## Preprocess the data
 
-We convert the `Survived` variable into a factor and change the labels to be more readable.
+We convert the `Survived` variable into a factor and change the labels to be more readable. I added this step to the `recipe` too. It is not neccesary to run it both times.
+
 ```R
 titanic_train <- titanic_train %>% 
   mutate(
@@ -45,7 +46,7 @@ titanic_train <- titanic_train %>%
 
 ## Create the model
 
-Ecribir
+With `update_role` we convert a variable into and Id, so it will not be used for prediction. `Step_zv` removes any variable with zero variance and `step_normalize` standardizes any numeric variable.
 
  ```R
  glm_recipe <- recipe(Survived ~., data = titanic_train) %>% 
@@ -60,10 +61,18 @@ Ecribir
   step_dummy(all_nominal_predictors()) %>% 
   step_zv(all_predictors()) %>% 
   step_normalize(all_numeric_predictors())
+```
 
+Then we choose the engine for the logistic regression...
+
+```R
 glm_spec <- logistic_reg() %>% 
   set_engine("glm")
+```
 
+...and create the workflow.
+
+```R
 glm_wf <- workflow() %>% 
   add_recipe(glm_recipe) %>% 
   add_model(glm_spec)
@@ -71,13 +80,16 @@ glm_wf <- workflow() %>%
  
  ## Fit the model
  
- Escribir
+ We create folds, namely same size splits of the original data to train the model in each of them. The list of metrics will be used to check how well the model performed.
  
  ```R
  set.seed(123)
 titanic_folds <- vfold_cv(titanic_train, strata = Survived)
 list_metrics <- metric_set(roc_auc, accuracy, sensitivity, specificity)
 
+Parallelization will help speed things up.
+
+```R
 doParallel::registerDoParallel()
 
 glm_results <- glm_wf %>% 
