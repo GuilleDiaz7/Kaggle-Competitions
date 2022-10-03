@@ -86,6 +86,7 @@ glm_wf <- workflow() %>%
  set.seed(123)
 titanic_folds <- vfold_cv(titanic_train, strata = Survived)
 list_metrics <- metric_set(roc_auc, accuracy, sensitivity, specificity)
+```
 
 Parallelization will help speed things up.
 
@@ -102,15 +103,22 @@ glm_results <- glm_wf %>%
  
  ## Check the model performance
  
- Escribir
- 
- ```R
- glm_results %>% 
-  collect_metrics()
+Here we see every metric we chose...
 
+```R
+glm_results %>% 
+ collect_metrics()
+```
+...and the confusion matrix, which basically tells us how well each category was predicted. In this case, with two classes (Deceased and Survived) it will provide four combinations of predicted-observed results: Deceased-Deceases, Deceased-Survived, Survived-Deceased and Survived-Survived.
+
+```R
 glm_results %>% 
   conf_mat_resampled()
+```
 
+With the `collect_predictions` funtion we plot the `roc_curve`.
+
+```R
 glm_results %>% 
   collect_predictions()
 
