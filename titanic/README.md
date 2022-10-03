@@ -14,7 +14,6 @@ library(ggplot2)
 ## Load data
 
 Then we load the data provided by [Kaggle](https://www.kaggle.com/competitions/titanic/data). I converted both character and logical data into factor, although it is not strictly neccesary. Here I am using relative paths to load the data. I cloned this GitHub repository in my computer to work more comfortable with RStudio Desktop.
-The `gender_submission` file contains my last submission, not the original submission file from Kaggle.
 
 ```R
 titanic_train <- read_csv("titanic/data/train.csv") %>% 
@@ -159,10 +158,11 @@ If you want to submit your prediction on test data to Kaggle just run the follow
 ```R
 fitted <- fit(glm_wf, titanic_train)
 predictions <- predict(fitted, new_data = titanic_test)
-submission$Survived <- predictions
-submission <- submission %>% 
+lr_submission <- submission
+lr_submission$Survived <- predictions
+lr_submission <- lr_submission %>% 
   mutate(
     Survived = if_else(Survived == "Deceased", 0, 1)
   )
-write.csv(submission, "titanic/data/gender_submission.csv", row.names = FALSE)
+write.csv(lr_submission, "titanic/data/log_reg_submission.csv", row.names = FALSE)
 ```
