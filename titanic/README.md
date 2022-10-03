@@ -1,6 +1,6 @@
 # Basic model explanation
 
-This is the explanation of a really basic workflow for a logistic model which will give bad results. On this [file]() there is a better model which, basically, includes some feature engineering, some data imputation and some parameter tuning.
+This is the explanation of a quite basic workflow for a logistic model which gave a 0.77511 score in Kaggle.
 
 ## Load libraries
 
