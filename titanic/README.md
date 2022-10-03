@@ -31,17 +31,25 @@ submission <- read_csv("https://raw.githubusercontent.com/GuilleDiaz7/Kaggle-Com
 
 ## Preprocess the data
 
-We convert the `Survived` variable into a factor and change the labels to be more readable. I added this step to the `recipe` too. It is not neccesary to run it both times.
-
+We convert the `Survived` variable into a factor and change the labels to be more readable. We also extract title from the `Name` variable such as Mr or Master or Dr.
 ```R
 titanic_train <- titanic_train %>% 
+  mutate(Survived = factor(
+  Survived,
+  levels = c(0, 1),
+  labels = c("Deceased", "Survived")))
+  
+titanic_train <- titanic_train %>% 
   mutate(
-    Survived = factor(
-      Survived,
-      levels = c(0, 1),
-      labels = c("Deceased", "Survived")
-    )
-  )
+    title = str_match(Name, ", ([:alpha:]+)\\."),
+    title = if_else(is.na(title[, 2]), "NA", title[, 2])
+    ) 
+
+titanic_test <- titanic_test %>% 
+  mutate(
+    title = str_match(Name, ", ([:alpha:]+)\\."),
+    title = if_else(is.na(title[, 2]), "NA", title[, 2])
+  ) 
 ```
 
 ## Create the model
@@ -50,24 +58,14 @@ With `update_role` we convert a variable into and Id, so it will not be used for
 
  ```R
 glm_recipe <- recipe(Survived ~., data = titanic_train) %>% 
-  update_role(PassengerId, new_role = "Id") %>% 
+  update_role(PassengerId, new_role = "Id") %>%   
   step_rm(Ticket) %>% 
-  step_mutate(Survived = factor(
-    Survived,
-      levels = c(0, 1),
-      labels = c("Deceased", "Survived")
-    )
-  ) %>% 
-  step_mutate(
-    title = str_match(Name, ", ([:alpha:]+)\\."),
-    title = if_else(is.na(title[, 2]), "NA", title[, 2])
-  ) %>% 
+  step_string2factor(all_nominal_predictors()) %>% 
+  step_num2factor(Pclass, levels = c("First", "Second", "Third")) %>% 
   step_other(title, threshold = 0.02, other = "Other") %>% 
   update_role(Name, new_role = "Id") %>% 
   step_mutate(Cabin = if_else(is.na(Cabin), "Missing", "Available")) %>% 
   step_impute_knn(all_predictors()) %>% 
-  step_string2factor(all_nominal_predictors()) %>% 
-  step_num2factor(Pclass, levels = c("First", "Second", "Third")) %>% 
   step_novel(all_nominal_predictors()) %>% 
   step_dummy(all_nominal_predictors()) %>% 
   step_zv(all_predictors()) %>% 
@@ -153,5 +151,12 @@ glm_results %>%
 If you want to submit your prediction on test data to Kaggle just run the following code.
 
 ```R
-
+fitted <- fit(glm_wf, titanic_train)
+predictions <- predict(fitted, new_data = titanic_test)
+submission$Survived <- predictions
+submission <- submission %>% 
+  mutate(
+    Survived = if_else(Survived == "Deceased", 0, 1)
+  )
+write.csv(submission, "titanic/data/gender_submission.csv", row.names = FALSE)
 ```
