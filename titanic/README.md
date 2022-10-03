@@ -1,6 +1,6 @@
 # Basic model explanation
 
-This is the explanation of a quite basic workflow for a logistic model which gave a 0.77511 score in Kaggle.
+This is the explanation of a quite basic workflow for a logistic model (logistic_regression.R) which gave a 0.77511 accuracy score in Kaggle.
 
 ## Load libraries
 
