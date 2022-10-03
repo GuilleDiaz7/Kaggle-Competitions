@@ -13,7 +13,13 @@ Then we load the data provided by [Kaggle](https://www.kaggle.com/competitions/t
 ```R
 titanic_train <- read_csv("data/train.csv") %>% 
   mutate(across(where(is.character) | where(is.logical), as.factor))
-titanic_test <- space_test_final <- read_csv("data/test.csv") %>% 
+titanic_test <- read_csv("data/test.csv") %>% 
   mutate(across(where(is.character) | where(is.logical), as.factor))
-submission <-  <- read_csv("data/sample_submission.csv")
+submission <-  <- read_csv("data/gender_submission.csv")
+```
+
+Split the training data into train and validation sets.
+```R
+set.seed(212)
+train_split <- initial_split(
 ```
