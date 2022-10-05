@@ -1,6 +1,6 @@
 # Basic model explanation
 
-This is the explanation of a quite basic workflow for a logistic model (logistic_regression.R) which gave a 0.77511 accuracy score in Kaggle.
+This is the explanation of a quite basic workflow for a **logistic model** (logistic_regression.R) which gave a 0.77511 accuracy score in Kaggle.
 
 ## Load libraries
 
@@ -23,7 +23,7 @@ titanic_test <- read_csv("titanic/data/test.csv") %>%
 submission <- read_csv("titanic/data/gender_submission.csv")
 ```
 
-If you want to download data directly from this repository without cloning it, you can use the following code.
+If you want to download the data directly from this repository without cloning it, you can use the following code.
 
 ```R
 titanic_train <- read_csv("https://raw.githubusercontent.com/GuilleDiaz7/Kaggle-Competitions/main/titanic/data/train.csv")
