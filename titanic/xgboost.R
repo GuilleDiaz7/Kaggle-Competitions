@@ -3,6 +3,7 @@ library(tidyverse)
 library(ggplot2)
 library(vip) 
 library(xgboost)
+library(themis)
 
 rm(list = ls())
 
@@ -41,6 +42,7 @@ xgb_recipe <- recipe(Survived ~., data = titanic_train) %>%
   step_impute_knn(all_predictors()) %>% 
   step_novel(all_nominal_predictors()) %>% 
   step_dummy(all_nominal_predictors()) %>% 
+  step_corr(all_numeric(), threshold = 0.8) %>% 
   step_zv(all_predictors()) %>% 
   step_normalize(all_numeric_predictors()) %>% 
   step_smote()
@@ -111,19 +113,6 @@ final_xgb %>%
   fit(data = titanic_train) %>%
   extract_fit_parsnip() %>%
   vip(geom = "point")
-
-collect_metrics(final_res)
-
-final_res %>%
-  collect_predictions() %>%
-  roc_curve(Survived, .pred_Deceased) %>%
-  ggplot(aes(x = 1 - specificity, y = sensitivity)) +
-  geom_line(size = 1.5, color = "midnightblue") +
-  geom_abline(
-    lty = 2, alpha = 0.5,
-    color = "gray50",
-    size = 1.2
-  )
 
 fitted <- fit(final_xgb, titanic_train)
 
