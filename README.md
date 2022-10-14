@@ -5,4 +5,4 @@ These repository will contain every Kaggle competition I join, both in R and Pyt
 Here is the [Kaggle](https://www.kaggle.com/c/titanic) site and the link to my [models](https://github.com/GuilleDiaz7/Kaggle-Competitions/tree/main/titanic) hosted in this repository.
 
 ## Spaceship Titanic
-Here is the [Kaggle](https://www.kaggle.com/competitions/spaceship-titanic) site and the link to my [models]() hosted in this repository.
+Here is the [Kaggle](https://www.kaggle.com/competitions/spaceship-titanic) site and the link to my [models](https://github.com/GuilleDiaz7/Kaggle-Competitions/tree/main/spaceship) hosted in this repository.
